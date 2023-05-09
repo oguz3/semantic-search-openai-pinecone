@@ -8,10 +8,12 @@ import { Toaster } from "react-hot-toast";
 
 import Main from "../components/Main";
 import Search from "../components/Search";
+import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
   const [feature, setFeature] = React.useState<"search" | "library">("search");
   const { data: authSessionData } = useSession();
+  const router = useRouter();
 
   const featureComponent = feature === "search" ? <Search /> : <Library />;
 
@@ -61,7 +63,7 @@ const Home: NextPage = () => {
             <h3 className="mt-10 text-2xl text-white">
               <span
                 className="cursor-pointer text-search"
-                onClick={() => signIn("google")}
+                onClick={() => router.push("/api/auth/signin")}
               >
                 Signin
               </span>{" "}
