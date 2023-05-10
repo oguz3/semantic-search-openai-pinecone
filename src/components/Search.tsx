@@ -7,9 +7,22 @@ import { trpc } from "../utils/trpc";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { LoadingResults } from "./Loading";
+import { generateAnswerFromOpenAI } from "../utils/openai";
 
 type Inputs = {
   text: string;
+};
+
+type Metadata = {
+  title?: string;
+  text?: string;
+};
+
+type RelatedContent = {
+  id: string;
+  score?: number;
+  values?: Array<number>;
+  metadata?: Metadata;
 };
 
 const Search = () => {
@@ -21,6 +34,8 @@ const Search = () => {
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     await mutateAsync({ text: data.text });
   };
+
+  console.log(data);
 
   return (
     <>
@@ -64,25 +79,34 @@ const Search = () => {
         {isLoading ? (
           <LoadingResults />
         ) : (
-          data?.pineconeSearch.matches?.map((item) => {
-            if (item.metadata.text) {
-              return (
-                <div
-                  className="m-5 w-full bg-white shadow sm:rounded-lg"
-                  key={item.id}
-                >
-                  <div className="flex flex-col items-center px-4 py-5 sm:px-6">
-                    <h3 className="text-lg font-medium leading-6 text-gray-900">
-                      {item.metadata.title}
-                    </h3>
-                    <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                      {item.metadata.text}
-                    </p>
-                  </div>
-                </div>
-              );
-            }
-          })
+          <>
+            <h3 className="mb-4 mt-8 text-center text-base font-normal text-white">
+              {data?.answer}
+            </h3>
+            <div className="mt-4 border-t border-white pt-4">
+              {data?.contents && !!data?.contents.length
+                ? data?.contents.map((item: RelatedContent) => {
+                    if (item.metadata?.title || item.metadata?.text) {
+                      return (
+                        <div
+                          className="m-5 w-full bg-white shadow sm:rounded-lg"
+                          key={item.id}
+                        >
+                          <div className="flex flex-col items-center px-4 py-5 sm:px-6">
+                            <h3 className="text-lg font-medium leading-6 text-gray-900">
+                              {item.metadata?.title}
+                            </h3>
+                            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                              {item.metadata?.text}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+                  })
+                : null}
+            </div>
+          </>
         )}
       </div>
     </>

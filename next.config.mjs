@@ -12,6 +12,10 @@ const config = {
   },
   reactStrictMode: true,
   swcMinify: true,
+  webpack(config) {
+    config.experiments = { ...config.experiments, topLevelAwait: true };
+    return config;
+  },
   i18n: {
     locales: ["en"],
     defaultLocale: "en",
